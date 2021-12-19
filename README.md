@@ -26,11 +26,11 @@ npm install
 ```
 DB_URL = your-postgres-db-url
 ```
-4 - Create the tables and seed them running:
+4 - Create the tables and seed them by running:
 ```
 npm run seed
 ```
-5 - Run it in development environment:
+5 - Run the project in development environment:
 ```
 npm run dev
 ```
