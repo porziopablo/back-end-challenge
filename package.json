@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "description": "RESTful API that would allow an application to create shipping orders for products from the Warehouse to a Shop",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": ""
+    "test": "",
+    "seed": "node ./src/utils/runSeed.js"
   },
   "repository": {
     "type": "git",
@@ -17,7 +19,9 @@
   },
   "homepage": "https://github.com/porziopablo/ponce-challenge#readme",
   "dependencies": {
-    "express": "^4.17.2"
+    "dotenv": "^10.0.0",
+    "express": "^4.17.2",
+    "pg": "^8.7.1"
   },
   "devDependencies": {
     "eslint": "^8.5.0",
