@@ -1,5 +1,5 @@
 export const createRoleTable = `
-  DROP TABLE IF EXISTS role;
+  DROP TABLE IF EXISTS role CASCADE;
   CREATE TABLE IF NOT EXISTS role (
     role_id SERIAL PRIMARY KEY,
     description VARCHAR(30)
@@ -7,7 +7,7 @@ export const createRoleTable = `
 `;
 
 export const createLocationTypeTable = `
-  DROP TABLE IF EXISTS location_type;
+  DROP TABLE IF EXISTS location_type CASCADE;
   CREATE TABLE IF NOT EXISTS location_type (
     type_id SERIAL PRIMARY KEY,
     description VARCHAR(30)
@@ -15,7 +15,7 @@ export const createLocationTypeTable = `
 `;
 
 export const createStatusTable = `
-  DROP TABLE IF EXISTS status;
+  DROP TABLE IF EXISTS status CASCADE;
   CREATE TABLE IF NOT EXISTS status (
     status_id SERIAL PRIMARY KEY,
     description VARCHAR(30)
@@ -23,7 +23,7 @@ export const createStatusTable = `
 `;
 
 export const createLocationTable = `
-  DROP TABLE IF EXISTS location;
+  DROP TABLE IF EXISTS location CASCADE;
   CREATE TABLE IF NOT EXISTS location (
     location_id SERIAL PRIMARY KEY,
     name VARCHAR(30),
@@ -34,7 +34,7 @@ export const createLocationTable = `
 `;
 
 export const createEmployeeTable = `
-  DROP TABLE IF EXISTS employee;
+  DROP TABLE IF EXISTS employee CASCADE;
   CREATE TABLE IF NOT EXISTS employee (
     employee_id SERIAL PRIMARY KEY,
     name VARCHAR(30),
@@ -45,7 +45,7 @@ export const createEmployeeTable = `
 `;
 
 export const createShippingOrderTable = `
-  DROP TABLE IF EXISTS shipping_order;
+  DROP TABLE IF EXISTS shipping_order CASCADE;
   CREATE TABLE IF NOT EXISTS shipping_order (
     order_id SERIAL PRIMARY KEY,
     created_date TIMESTAMP,
@@ -56,7 +56,7 @@ export const createShippingOrderTable = `
 `;
 
 export const createProductTable = `
-  DROP TABLE IF EXISTS product;
+  DROP TABLE IF EXISTS product CASCADE;
   CREATE TABLE IF NOT EXISTS product (
     product_id SERIAL PRIMARY KEY,
     name VARCHAR(30),
@@ -67,7 +67,7 @@ export const createProductTable = `
 `;
 
 export const createOrderItemTable = `
-  DROP TABLE IF EXISTS order_item;
+  DROP TABLE IF EXISTS order_item CASCADE;
   CREATE TABLE IF NOT EXISTS order_item (
     product_id INTEGER REFERENCES product(product_id),
     order_id INTEGER REFERENCES shipping_order(order_id),
@@ -77,10 +77,10 @@ export const createOrderItemTable = `
 `;
 
 /**
- * Creates a SQL query to drop a table if it exists.
+ * Creates a SQL query to drop a table if it exists, and any object that depend on it.
  * @param {string} tableName the table's name in the DB.
  * @returns the SQL query string.
  */
 export const deleteTable = (tableName) => `
-  DROP TABLE IF EXISTS ${tableName};
+  DROP TABLE IF EXISTS ${tableName} CASCADE;
 `;
