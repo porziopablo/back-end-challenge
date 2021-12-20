@@ -3,9 +3,10 @@
     "package.json",
     "nodemon.json",
     ".eslintrc.json",
-    "src/"
+    "src/",
+    ".env"
   ],
-  "verbose": true,
+  "verbose": false,
   "ignore": [
     "*.test.js",
     "*.spec.js"
