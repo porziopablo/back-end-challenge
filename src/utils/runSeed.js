@@ -22,6 +22,7 @@ import {
   seedEmployeeTable,
   seedProductTable,
 } from './seedTableQueries.js';
+import createGetProductsFunction from './createFunctionsQueries.js';
 
 /**
  * It drops all the tables, creates them again, and seed some of them with
@@ -57,6 +58,8 @@ async function seed() {
     await db.query(seedLocationTable);
     await db.query(seedEmployeeTable);
     await db.query(seedProductTable);
+
+    await db.query(createGetProductsFunction);
 
     console.log('Seeding completed successfully!');
   } catch (error) {
