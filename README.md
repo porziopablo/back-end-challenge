@@ -22,7 +22,7 @@ git clone git@github.com:porziopablo/ponce-challenge.git
 ```
 npm install
 ```
-3 - Create an `.env` file in your project's root directory with the following variables:
+3 - Create an `.env` file in your project's root directory, based on the `.env.example` provided. There are some default values that you can change if needed, but you must complete these:
 ```
 DB_URL = your-postgres-db-url
 ```
