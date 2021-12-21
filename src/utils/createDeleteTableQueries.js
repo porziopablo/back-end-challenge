@@ -48,8 +48,8 @@ export const createShippingOrderTable = `
   DROP TABLE IF EXISTS shipping_order CASCADE;
   CREATE TABLE IF NOT EXISTS shipping_order (
     order_id SERIAL PRIMARY KEY,
-    created_date TIMESTAMP,
-    last_update TIMESTAMP,
+    created_date TIMESTAMPTZ,
+    last_update TIMESTAMPTZ,
     location_id INTEGER REFERENCES location(location_id),
     status_id INTEGER REFERENCES status(status_id)
   )
