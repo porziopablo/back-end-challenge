@@ -6,6 +6,7 @@ import config from '../config.js';
 
 const pool = new pg.Pool({ connectionString: config.DB_URL });
 
+// eslint-disable-next-line no-console
 pool.on('error', (error) => console.log('DB pool error:', error));
 
 const db = {
@@ -21,7 +22,14 @@ const db = {
    * a script using the pool or when your process is attempting to shut down cleanly.
    * @param {*} message to be shown once the pool has ended.
    */
+  // eslint-disable-next-line no-console
   end: (message) => pool.end(() => { console.log(message); }),
+  /**
+   * Acquires a client from the pool.Once is not longer needed call
+   * `client.release()` to free it.
+   * @returns {Promise<pg.PoolClient>} a Promise to deliver a client.
+   */
+  getClient: () => pool.connect(),
 };
 
 export default db;
