@@ -11,6 +11,8 @@ import {
   insertOrderItem,
   checkIsValidShop,
   insertShippingOrder,
+  selectNotDeliveredOrders,
+  selectOrderItems,
 } from './queries.js';
 
 /**
@@ -98,4 +100,52 @@ export async function insertOrder(locationId, productsOrdered) {
     status: 'pending',
     insertedProductsIds,
   };
+}
+
+/**
+ * Builds an Order object using the data from `selectNotDeliveredOrders()`
+ * and its order items obtained from `selectOrderItems()`
+ * @param {*} incompleteOrder a row from `selectNotDeliveredOrders()`
+ * @returns a complete order object with the properties specified in the API.
+ */
+async function buildOrder(incompleteOrder) {
+  const status = incompleteOrder.status_id === 1 ? 'pending' : 'in progress';
+  const location = {
+    locationId: incompleteOrder.location_id,
+    name: incompleteOrder.name,
+    address: incompleteOrder.address,
+    city: incompleteOrder.city,
+  };
+
+  const order = {
+    orderId: incompleteOrder.order_id,
+    createdDate: incompleteOrder.created_date,
+    lastUpdate: incompleteOrder.last_update,
+    status,
+    location,
+    items: [],
+  };
+
+  const { rows } = await db.query(selectOrderItems(incompleteOrder.order_id));
+
+  order.items = rows || [];
+
+  return order;
+}
+
+/**
+ * Returns all the pending or in progress orders sorted by last update date
+ * @returns {Promise<Array>} containin Order objects.
+ */
+export async function getNotDeliveredOrders() {
+  const orders = [];
+
+  const { rows } = await db.query(selectNotDeliveredOrders());
+
+  await Promise.all(rows.map(async (row) => {
+    const order = await buildOrder(row);
+    orders.push(order);
+  }));
+
+  return orders;
 }
