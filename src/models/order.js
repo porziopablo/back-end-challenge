@@ -13,7 +13,11 @@ import {
   insertShippingOrder,
   selectNotDeliveredOrders,
   selectOrderItems,
-} from './queries.js';
+  updateOrderStatus,
+} from './utils/queries.js';
+
+// helpers
+import { currentStatusIdShouldBe } from './utils/helpers.js';
 
 /**
  * Inserts a new order item in the table.
@@ -109,7 +113,7 @@ export async function insertOrder(locationId, productsOrdered) {
  * @returns a complete order object with the properties specified in the API.
  */
 async function buildOrder(incompleteOrder) {
-  const status = incompleteOrder.status_id === 1 ? 'pending' : 'in progress';
+  const status = incompleteOrder.status_id === 1 ? 'pending' : 'in_progress';
   const location = {
     locationId: incompleteOrder.location_id,
     name: incompleteOrder.name,
@@ -148,4 +152,25 @@ export async function getNotDeliveredOrders() {
   }));
 
   return orders;
+}
+
+/**
+ * It updates an order's status if the operation is valid.
+ * @param {int} orderId of the order desired to be updated.
+ * @param {int} newStatusId the new statusId it should have.
+ * @returns {Promise<boolean>} that once resolved will indicate if
+ * the update was successfull or not.
+ */
+export async function setNewOrderStatus(orderId, newStatusId) {
+  let success = false;
+  const currentStatusId = currentStatusIdShouldBe(newStatusId);
+
+  if (currentStatusId) {
+    const { rows } = await db.query(updateOrderStatus(orderId, newStatusId, currentStatusId));
+
+    // checks if the update was applied
+    success = !!rows[0] && rows[0].order_id === orderId;
+  }
+
+  return success;
 }

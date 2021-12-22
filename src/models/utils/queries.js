@@ -80,3 +80,17 @@ export function selectOrderItems(orderId) {
     values: [orderId],
   };
 }
+
+export function updateOrderStatus(orderId, newStatus, oldStatus) {
+  const now = new Date();
+
+  return {
+    text: `
+      UPDATE shipping_order
+      SET status_id = $1, last_update = $2
+      WHERE order_id = $3 AND status_id = $4
+      RETURNING order_id;
+    `,
+    values: [newStatus, now, orderId, oldStatus],
+  };
+}
