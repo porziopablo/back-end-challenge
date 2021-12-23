@@ -7,6 +7,11 @@ import config from '../config.js';
 // constants
 import STATUS_CODES from './constants/statusCodes.js';
 import { FORBIDDEN_MSG, NOT_FOUND_MSG } from './constants/errorMessages.js';
+import { INTERNAL_ERROR_MSG } from '../controllers/constants/errorMessages.js';
+import { ROLE, STATUS } from '../models/utils/constants.js';
+
+// models
+import { getRoleDescription, getStatusDescription } from '../models/property.js';
 
 const AUTH_SCHEME = 'Bearer';
 
@@ -49,15 +54,24 @@ export function authorizationMiddleware(request, response, next) {
  * @param {*} next provided by `Express`.
  * @param {Array} expectedUserRole array containing the roles that are allowed.
  */
-export function permissionsMiddleware(request, response, next, expectedUserRole) {
+export async function permissionsMiddleware(request, response, next, expectedUserRole) {
   const payload = getPayload(request.headers.authorization || '');
+  let role = '';
 
-  if (!expectedUserRole.includes(payload.role)) {
+  try {
+    role = await getRoleDescription(parseInt(payload.role, 10));
+
+    if (!expectedUserRole.includes(role)) {
+      response
+        .status(STATUS_CODES.FORBIDDEN)
+        .send({ error: FORBIDDEN_MSG(role) });
+    } else {
+      next();
+    }
+  } catch {
     response
-      .status(STATUS_CODES.FORBIDDEN)
-      .send({ error: FORBIDDEN_MSG(payload.role) });
-  } else {
-    next();
+      .status(STATUS_CODES.INTERNAL_SERVER_ERROR)
+      .send({ error: INTERNAL_ERROR_MSG });
   }
 }
 
@@ -68,27 +82,37 @@ export function permissionsMiddleware(request, response, next, expectedUserRole)
  * @param {*} response provided by `Express`.
  * @param {*} next provided by `Express`.
  */
-export function updateStatusMiddleware(request, response, next) {
+export async function updateStatusMiddleware(request, response, next) {
   const { headers, query } = request;
   const payload = getPayload(headers.authorization || '');
-  const role = parseInt(payload.role, 10);
+  let role = '';
+  let status = '';
   let isRoleAllowed = false;
 
-  switch (parseInt(query.statusId, 10)) {
-    case 3:
-      isRoleAllowed = role === 1; break;
-    case 2:
-      isRoleAllowed = role === 2; break;
-    default:
-      isRoleAllowed = false;
-  }
+  try {
+    role = await getRoleDescription(parseInt(payload.role, 10));
+    status = await getStatusDescription(parseInt(query.statusId, 10));
 
-  if (!isRoleAllowed) {
+    switch (status) {
+      case STATUS.DELIVERED:
+        isRoleAllowed = role === ROLE.SHOP_MANAGER; break;
+      case STATUS.IN_PROGRESS:
+        isRoleAllowed = role === ROLE.WAREHOUSE_OFFICER; break;
+      default:
+        isRoleAllowed = false;
+    }
+
+    if (!isRoleAllowed) {
+      response
+        .status(STATUS_CODES.FORBIDDEN)
+        .send({ error: FORBIDDEN_MSG(role) });
+    } else {
+      next();
+    }
+  } catch (error) {
     response
-      .status(STATUS_CODES.FORBIDDEN)
-      .send({ error: FORBIDDEN_MSG(payload.role) });
-  } else {
-    next();
+      .status(STATUS_CODES.INTERNAL_SERVER_ERROR)
+      .send({ error: INTERNAL_ERROR_MSG });
   }
 }
 

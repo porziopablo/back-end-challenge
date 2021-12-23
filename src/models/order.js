@@ -1,13 +1,18 @@
 // database connector
 import db from '../db/index.js';
 
+// constants
+import { STATUS } from './utils/constants.js';
+
+// models
+import { getStatusDescription } from './property.js';
+
 // queries
 import {
   BEGIN_TRANSACTION,
   COMMIT_TRANSACTION,
   ROLLBACK_TRANSACTION,
   getProductStock,
-  updateProductStock,
   insertOrderItem,
   checkIsValidShop,
   insertShippingOrder,
@@ -35,12 +40,7 @@ async function insertItem({ productId, quantity }, client, orderId) {
   // if the product exists, is unique and the quantity is positive then it will proceed
   // else it will discard this item
   if (quantity > 0 && rows.length === 1) {
-    const { stock } = rows[0];
-    const newStock = quantity > stock ? 0 : stock - quantity;
-
-    await client.query(updateProductStock(productId, newStock));
     await client.query(insertOrderItem(productId, orderId, quantity));
-
     isInserted = true;
   }
 
@@ -55,7 +55,7 @@ async function insertItem({ productId, quantity }, client, orderId) {
  */
 export async function isValidShop(locationId) {
   const { rows } = await db.query(checkIsValidShop(locationId));
-  return rows[0].exists;
+  return !!rows[0] && rows[0].exists;
 }
 /**
  * Inserts a new shipping order into the DB
@@ -101,7 +101,7 @@ export async function insertOrder(locationId, productsOrdered) {
 
   return {
     orderId,
-    status: 'pending',
+    status: STATUS.PENDING,
     insertedProductsIds,
   };
 }
@@ -113,7 +113,6 @@ export async function insertOrder(locationId, productsOrdered) {
  * @returns a complete order object with the properties specified in the API.
  */
 async function buildOrder(incompleteOrder) {
-  const status = incompleteOrder.status_id === 1 ? 'pending' : 'in_progress';
   const location = {
     locationId: incompleteOrder.location_id,
     name: incompleteOrder.name,
@@ -125,7 +124,7 @@ async function buildOrder(incompleteOrder) {
     orderId: incompleteOrder.order_id,
     createdDate: incompleteOrder.created_date,
     lastUpdate: incompleteOrder.last_update,
-    status,
+    status: incompleteOrder.description,
     location,
     items: [],
   };
@@ -163,10 +162,11 @@ export async function getNotDeliveredOrders() {
  */
 export async function setNewOrderStatus(orderId, newStatusId) {
   let success = false;
-  const currentStatusId = currentStatusIdShouldBe(newStatusId);
+  const newStatusDescription = await getStatusDescription(newStatusId);
+  const currentStatus = currentStatusIdShouldBe(newStatusDescription);
 
-  if (currentStatusId) {
-    const { rows } = await db.query(updateOrderStatus(orderId, newStatusId, currentStatusId));
+  if (currentStatus) {
+    const { rows } = await db.query(updateOrderStatus(orderId, newStatusId, currentStatus));
 
     // checks if the update was applied
     success = !!rows[0] && rows[0].order_id === orderId;

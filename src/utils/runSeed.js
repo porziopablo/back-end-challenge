@@ -22,11 +22,14 @@ import {
   seedEmployeeTable,
   seedProductTable,
 } from './seedTableQueries.js';
-import createGetProductsFunction from './createFunctionsQueries.js';
+import {
+  createGetProductsFunction,
+  createGetUndeliveredOrdersFunction,
+} from './createFunctionsQueries.js';
 
 /**
  * It drops all the tables, creates them again, and seed some of them with
- * initial values.
+ * initial values. It also creates DB functions and stored procedures.
  */
 async function seed() {
   try {
@@ -60,6 +63,7 @@ async function seed() {
     await db.query(seedProductTable);
 
     await db.query(createGetProductsFunction);
+    await db.query(createGetUndeliveredOrdersFunction);
 
     console.log('Seeding completed successfully!');
   } catch (error) {
