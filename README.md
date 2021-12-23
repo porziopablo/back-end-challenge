@@ -25,6 +25,7 @@ npm install
 3 - Create an `.env` file in your project's root directory, based on the `.env.example` provided. There are some default values that you can change if needed, but you must complete these:
 ```
 DB_URL = your-postgres-db-url
+MOCKED_JWT_TOKEN = your-jwt-token-with-role # see API doc
 ```
 4 - Create the tables and seed them by running:
 ```
