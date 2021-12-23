@@ -4,9 +4,11 @@ import express from 'express';
 // set-up
 import config from './config.js';
 import mountRoutes from './routes/index.js';
+import { authorizationMiddleware } from './routes/middleware.js';
 
 const app = express();
 
+app.use(authorizationMiddleware);
 app.use(express.json());
 
 mountRoutes(app);
