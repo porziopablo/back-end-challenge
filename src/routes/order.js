@@ -7,12 +7,21 @@ import { createOrder, getOrders, updateOrderStatus } from '../controllers/orderC
 // routes
 import { ORDER_ROUTES } from './constants/routes.js';
 
+// middleware
+import { permissionsMiddleware, updateStatusMiddleware } from './middleware.js';
+
 const orderRouter = Router();
 
-orderRouter.post(ORDER_ROUTES.CREATE_NEW_ORDER, createOrder);
+orderRouter.post(
+  ORDER_ROUTES.CREATE_NEW_ORDER,
+  (request, response, next) => {
+    permissionsMiddleware(request, response, next, [1]);
+  },
+  createOrder,
+);
 
 orderRouter.get(ORDER_ROUTES.GET_UNDELIVERED_ORDERS, (request, response) => getOrders(response));
 
-orderRouter.put(ORDER_ROUTES.UPDATE_ORDER_STATUS, updateOrderStatus);
+orderRouter.put(ORDER_ROUTES.UPDATE_ORDER_STATUS, updateStatusMiddleware, updateOrderStatus);
 
 export default orderRouter;
