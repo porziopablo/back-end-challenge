@@ -91,3 +91,35 @@ export function updateOrderStatus(orderId, newStatus, currentStatus) {
     values: [newStatus, now, orderId, currentStatus],
   };
 }
+
+export function selectRoleDescription(roleId) {
+  return {
+    text: `
+      SELECT R.description
+      FROM role R
+      WHERE R.role_id = $1;
+    `,
+    values: [roleId],
+  };
+}
+
+export function selectStatusDescription(statusId) {
+  return {
+    text: `
+      SELECT S.description
+      FROM status S
+      WHERE S.status_id = $1;
+    `,
+    values: [statusId],
+  };
+}
+
+export function getProducts(brand) {
+  return {
+    text: `
+      SELECT P.product_id, P.name, P.brand, P.description, P.stock
+      FROM get_products($1) P;
+    `,
+    values: [brand],
+  };
+}
