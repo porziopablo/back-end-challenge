@@ -91,3 +91,15 @@ export function updateStatusMiddleware(request, response, next) {
     next();
   }
 }
+
+/**
+ * Middleware that returns standard 404 response for non-existent resources/actions
+ * It must be placed at the bottom of the `Express` stack. `Express` will default to
+ * this after trying everything else.
+ * @param {*} response provided by `Express`.
+ */
+export function notFoundMiddleware(response) {
+  response
+    .status(STATUS_CODES.FORBIDDEN)
+    .send({ error: NOT_FOUND_MSG });
+}
