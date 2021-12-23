@@ -5,7 +5,12 @@
  - [Requests](#requests)
  - [Responses](#responses)
  - [Access Control](#access-control)
- - [Endpoints](#endpoints) 
+ - [Endpoints](#endpoints)
+   - [Return all the products](#return-all-the-products)
+   - [Return all the products filtered by brand](#return-all-the-products-filtered-by-brand)
+   - [Create an order](#create-an-order)
+   - [Return all the pending or in progress orders sorted by last update date](#return-all-the-pending-or-in-progress-orders-sorted-by-last-update-date)
+   - [Update the status of an order](#update-the-status-of-an-order)
 
 ## Authentication
 
@@ -114,7 +119,7 @@ If there are no products, it will return an empty array.
 
 ### Return all the products filtered by brand
 
-Same as above, but the request URL is: http://localhost:4000/products?brand=some-brand
+Same as above, but the request URL is: http://localhost:4000/products?brand=<some-brand>
 
 ### Create an order
  - Request URL: http://localhost:4000/orders/new
@@ -142,16 +147,76 @@ Same as above, but the request URL is: http://localhost:4000/products?brand=some
 }
 ```
  - Unsuccessful response body: 
-   - If the `locationId` doesn't exist or doesn't belong to an actual Shop (not Warehouse), the `Status Code` will be set to `400` and the body will be:
+1. If the `locationId` doesn't exist or doesn't belong to an actual Shop (not Warehouse), the `Status Code` will be set to `400` and the body will be:
 ```json
 {
   "error": "locationId <provided locationId> does not exist or belong to a shop"
 }
 ```
-  - If all the products requested had invalid `productId` and/or not positive `quantity` the order won't be created. The `Status Code` will be set to `400` and the body will be:
+2. If all the products requested had invalid `productId` and/or not positive `quantity` the order won't be created. The `Status Code` will be set to `400` and the body will be:
 ```json
 {
   "error": "All products requested had invalid productIds or not positive quantities. Order not created"
 }
 ```
 
+### Return all the pending or in progress orders sorted by last update date
+ - Request URL: http://localhost:4000/orders/undelivered
+ - Request method: `GET`
+ - Successful response body: 
+```json
+{
+  "result": [
+    {
+      "orderId": "integer",
+      "createdDate": "ISO date string",
+      "lastUpdate": "ISO date string",
+      "status": "string", // "PENDING" | "IN_PROGRESS"
+      "location": {
+        "locationId": "integer",
+        "name": "string",
+        "address": "string",
+        "city": "string"
+      },
+      "items": [
+        { "product_id": "integer", "quantity": "integer" },
+        "..."
+      ]
+    },
+    "..."
+  ]
+}
+```
+The orders are sorted from the oldest updated one to the latest one. If there are no pending or in progress orders, the `result` will return an empty array.
+
+### Update the status of an order
+ - Request URL: http://localhost:4000/orders/update?statusId=some-status-id&orderId=some-order-id
+ - Request method: `PUT`
+ - Successful response body:
+```json
+{
+  "result": true, // always when there's success
+}
+```
+Both query values must be positive integers. The `statusId` must be one of the following:
+| Status | statusId |
+| - | - |
+| PENDING | 1 |
+| IN_PROGRESS  | 2  |
+| DELIVERED  | 3  |
+
+These precedence rules must be followed:
+ 1. To update the order's status to `IN_PROGRESS` its current status must be `PENDING`.
+ 2. To update the order's status to `DELIVERED` its current status must be `IN_PROGRESS`.
+ 3. The status can't be updated to `PENDING`. This is only an initial state applied when the order is [created](#create-an-order).
+ 4. As a result of the rules above, the status can't be set to the same value it currently has.
+
+ - Unsuccessful response body: 
+If the rules above rules are not respected, the `orderId` doesn't exist and/or the `statusId` doesn't exist, the `Status Code` will be set to `400` and the response will be:
+```json
+{
+  "error": "Status not updated, due to one or more reasons: orderId does not exist, statusId does not exist, AND / OR statusId does not follow precedence rules (check API doc)"
+}
+```
+ 
+ Also remember the user's permissions explained in the [Access Control](#access-control) section.
