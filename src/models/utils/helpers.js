@@ -1,21 +1,24 @@
+// constant
+import { STATUS } from './constants.js';
+
 /**
- * It returns the current statusId the order should have in order to update it.
+ * It returns the current status the order should have in order to update it.
  * It follows the precedence rules described in the API doc.
- * @param {int} newStatusId the statusId the user wants to apply to the order.
- * @returns {int} the statusId it should currently have to do so. It returns `0` if
- * the `newStatusId` doesn't exist or representes `pending` status.
+ * @param {string} newStatus the status the user wants to apply to the order.
+ * @returns {string} the status it should currently have to do so. It returns `''` if
+ * the `newStatus` doesn't exist or represents `PENDING` status.
  */
 // eslint-disable-next-line import/prefer-default-export
-export function currentStatusIdShouldBe(newStatusId) {
-  let currentStatus = 0;
+export function currentStatusIdShouldBe(newStatus) {
+  let currentStatus = '';
 
-  switch (newStatusId) {
-    case 3:
-      currentStatus = 2; break;
-    case 2:
-      currentStatus = 1; break;
+  switch (newStatus) {
+    case STATUS.DELIVERED:
+      currentStatus = STATUS.IN_PROGRESS; break;
+    case STATUS.IN_PROGRESS:
+      currentStatus = STATUS.PENDING; break;
     default:
-      currentStatus = 0;
+      currentStatus = '';
   }
 
   return currentStatus;

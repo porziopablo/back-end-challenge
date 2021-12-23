@@ -36,7 +36,7 @@ export async function createOrder(request, response) {
       if (result.insertedProductsIds.length) {
         response.send({ result });
       } else {
-        response.status(400);
+        response.status(STATUS_CODES.BAD_REQUEST);
         response.send({ error: NO_VALID_PRODUCTS_MSG });
       }
     } else {

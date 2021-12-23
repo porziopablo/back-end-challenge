@@ -60,13 +60,9 @@ export function insertShippingOrder(locationId) {
 
 export function selectNotDeliveredOrders() {
   return `
-    SELECT S.order_id, S.created_date, S.last_update, S.status_id,
-           L.name, L.city, L.address, L.location_id
-    FROM shipping_order S
-    INNER JOIN location L
-    ON L.location_id = S.location_id
-    WHERE S.status_id = 1 OR S.status_id = 2
-    ORDER BY S.last_update;
+    SELECT S.order_id, S.created_date, S.last_update, S.description,
+           S.name, S.city, S.address, S.location_id
+    FROM getUndeliveredOrders() S;
   `;
 }
 
@@ -81,16 +77,17 @@ export function selectOrderItems(orderId) {
   };
 }
 
-export function updateOrderStatus(orderId, newStatus, oldStatus) {
+export function updateOrderStatus(orderId, newStatus, currentStatus) {
   const now = new Date();
 
   return {
     text: `
-      UPDATE shipping_order
+      UPDATE shipping_order O
       SET status_id = $1, last_update = $2
-      WHERE order_id = $3 AND status_id = $4
+      FROM status S
+      WHERE O.order_id = $3 AND O.status_id = S.status_id AND S.description = $4
       RETURNING order_id;
     `,
-    values: [newStatus, now, orderId, oldStatus],
+    values: [newStatus, now, orderId, currentStatus],
   };
 }
