@@ -8,3 +8,5 @@ export const NO_VALID_PRODUCTS_MSG = 'All products requested had invalid product
 
 // eslint-disable-next-line max-len
 export const NO_UPDATED_STATUS = 'Status not updated, due to one or more reasons: orderId does not exist, statusId does not exist, AND / OR statusId does not follow precendence rules (check API doc).';
+
+export const NO_MSG_SENT = 'Error while sending message to dispatch queue:';
