@@ -123,3 +123,13 @@ export function getProducts(brand) {
     values: [brand],
   };
 }
+
+export function selectInProgressOrder(orderId) {
+  return {
+    text: `
+      SELECT S.created_date, S.name, S.city, S.address, S.location_id
+      FROM getInProgressOrder($1) S;
+    `,
+    values: [orderId],
+  };
+}

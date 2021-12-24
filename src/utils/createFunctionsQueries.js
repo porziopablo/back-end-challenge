@@ -25,3 +25,17 @@ export const createGetUndeliveredOrdersFunction = `
     ORDER BY S.last_update;
   $$  LANGUAGE sql;
 `;
+
+export const createGetInProgressOrderFunction = `
+  DROP FUNCTION IF EXISTS getInProgressOrder;
+  CREATE FUNCTION getInProgressOrder(wantedOrderId INT)
+  RETURNS TABLE (created_date TIMESTAMPTZ, name VARCHAR, city VARCHAR, address VARCHAR,
+    location_id INT)
+  AS $$
+    SELECT S.created_date, L.name, L.city, L.address, L.location_id
+    FROM shipping_order S
+    INNER JOIN location L
+    ON L.location_id = S.location_id
+    WHERE S.order_id = wantedOrderId
+  $$  LANGUAGE sql;
+`;

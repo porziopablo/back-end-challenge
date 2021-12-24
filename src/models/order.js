@@ -19,6 +19,7 @@ import {
   selectNotDeliveredOrders,
   selectOrderItems,
   updateOrderStatus,
+  selectInProgressOrder,
 } from './utils/queries.js';
 
 // helpers
@@ -157,11 +158,11 @@ export async function getNotDeliveredOrders() {
  * It updates an order's status if the operation is valid.
  * @param {int} orderId of the order desired to be updated.
  * @param {int} newStatusId the new statusId it should have.
- * @returns {Promise<boolean>} that once resolved will indicate if
- * the update was successfull or not.
+ * @returns {Promise<string>} that once resolved will return the new status
+ * or an empty string if the update failed
  */
 export async function setNewOrderStatus(orderId, newStatusId) {
-  let success = false;
+  let success = '';
   const newStatusDescription = await getStatusDescription(newStatusId);
   const currentStatus = currentStatusIdShouldBe(newStatusDescription);
 
@@ -169,8 +170,27 @@ export async function setNewOrderStatus(orderId, newStatusId) {
     const { rows } = await db.query(updateOrderStatus(orderId, newStatusId, currentStatus));
 
     // checks if the update was applied
-    success = !!rows[0] && rows[0].order_id === orderId;
+    if (!!rows[0] && rows[0].order_id === orderId) {
+      success = newStatusDescription;
+    }
   }
 
   return success;
+}
+
+/**
+ * Retrieves an `IN_PROGRESS` order from the DB.
+ * @param {*} orderId of the order to be retrived.
+ * @returns {Promise<order>} a Promise that once resolved
+ * will return the order.
+ */
+export async function getInProgressOrder(orderId) {
+  const { rows } = await db.query(selectInProgressOrder(orderId));
+  const order = {
+    ...rows[0],
+    order_id: orderId,
+    description: STATUS.IN_PROGRESS,
+  };
+
+  return buildOrder(order);
 }

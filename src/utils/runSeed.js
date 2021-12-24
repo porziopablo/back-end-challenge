@@ -23,6 +23,7 @@ import {
   seedProductTable,
 } from './seedTableQueries.js';
 import {
+  createGetInProgressOrderFunction,
   createGetProductsFunction,
   createGetUndeliveredOrdersFunction,
 } from './createFunctionsQueries.js';
@@ -33,8 +34,9 @@ import {
  */
 async function seed() {
   try {
-    console.log('Seeding in progress...');
+    console.log('Seeding in progress...\n');
 
+    console.log('Deleting existing tables...\n');
     await db.query(deleteTable('order_item'));
     await db.query(deleteTable('shipping_order'));
     await db.query(deleteTable('product'));
@@ -44,6 +46,7 @@ async function seed() {
     await db.query(deleteTable('status'));
     await db.query(deleteTable('location_type'));
 
+    console.log('Creating tables...\n');
     await db.query(createLocationTypeTable);
     await db.query(createStatusTable);
     await db.query(createRoleTable);
@@ -54,6 +57,7 @@ async function seed() {
     await db.query(createShippingOrderTable);
     await db.query(createOrderItemTable);
 
+    console.log('Seeding tables...\n');
     await db.query(seedLocationTypeTable);
     await db.query(seedRoleTable);
     await db.query(seedStatusTable);
@@ -62,8 +66,10 @@ async function seed() {
     await db.query(seedEmployeeTable);
     await db.query(seedProductTable);
 
+    console.log('Creating functions and stored procedures...\n');
     await db.query(createGetProductsFunction);
     await db.query(createGetUndeliveredOrdersFunction);
+    await db.query(createGetInProgressOrderFunction);
 
     console.log('Seeding completed successfully!');
   } catch (error) {
