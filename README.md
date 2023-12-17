@@ -1,5 +1,5 @@
-# ponce-challenge
-RESTful API that would allow an application to create shipping orders for products from the Warehouse to a Shop. [Read the complete challenge](https://github.com/porziopablo/ponce-challenge/blob/main/doc/Challenge.pdf).
+# back-end-challenge
+Technical assessment that I had to do for a previous employer: RESTful API that would allow an application to create shipping orders for products from the Warehouse to a Shop. [Read the complete challenge](https://github.com/porziopablo/ponce-challenge/blob/main/doc/Challenge.pdf).
 
 ## Tech stack
  - AWS SQS 
